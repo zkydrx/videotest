@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+<meta charset="UTF-8">
+<title>Gary_Video</title>
+</head>
+<body>
+	
+	<form>
+		<!-- 添加视频 -->
+		<input id="addVideo-file" onchange="addVideo(this)" type="file" style="display: none;">
+		<!-- 添加封面 -->
+		<input id="addCover-file" onchange="addCover(this)" type="file" style="display:none;">
+	</form>
+	
+	<h1>上传视频+封面</h1>
+	<!-- 添加视频 -->
+	<a id="addVideo" onclick="videoClick()" href="javascript:void(0)">上传视频</a>
+	<!-- 添加封面 -->
+	<a id="addCover" onclick="coverClick()" href="javascript:void(0)">上传封面</a>
+	<!-- 上传按钮 -->
+	<a id="upload" onclick="upload()" href="javascript:void(0)">确定上传</a>
+
+	<br>
+	<hr>
+	<!-- 结果 -->
+	<div id="resultBox">Gary</div>
+
+	<script src="//imgcache.qq.com/open/qcloud/js/vod/sdk/ugcUploader.js"></script>
+	<script src="https://cdn.bootcdn.net/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+	<script type="text/javascript" th:inline="javascript">
+	
+		var videoFile = null;
+		var coverFile = null;
+	
+		//得到加密后的字符串
+		var getSignature = function(callback)
+		{
+			$.ajax({
+				url:"/sign",
+				type:"POST",
+				success:function(result)
+				{
+					callback(result);
+				}
+			})
+		}
+		
+		//input change事件
+		function addVideo(e)
+		{
+			//alert(e.files[0].name);
+			videoFile = e.files[0];
+		}
+		//input change事件
+		function addCover(e)
+		{
+			//alert(e.files[0].name);
+			coverFile = e.files[0];
+		}
+	
+		//a标签点击事件
+		function videoClick()
+		{
+			$("#addVideo-file").click();
+		}
+		
+		function coverClick()
+		{
+			$("#addCover-file").click();
+		}
+		
+		//上传按钮
+		function upload()
+		{
+			//提示信息
+			addUploaderMsgBox();
+			startUploader();
+		}
+		
+		var startUploader = function()
+		{
+			//上传视频的核心
+			qcVideo.ugcUploader.start({
+				//视频
+				videoFile:videoFile,
+				//封面
+				coverFile:coverFile,
+				
+				getSignature:getSignature,
+				allowAudio:1,
+				//文件上传成功后
+				success:function(result)
+				{
+					//alert("success")
+					$('[name=videoresult]').text('上传成功')
+				},
+				//文件上传失败后
+				error:function(result)
+				{
+					$('[name=videoresult]').text('上传失败')
+				},
+				//正在上传过程中会一直调用的Update
+				progress:function(result)
+				{
+					$('[name=videoname]').text(result.name)
+					$('[name=videosha]').text(Math.floor(result.shacurr*100)+"%")
+					$('[name=videocurr]').text(Math.floor(result.curr*100)+"%")
+				},
+				//上传完成
+				finish:function(result)
+				{
+					$('[name=videourl]').text(result.videoUrl)
+				}
+				
+			})
+		}
+		
+		function addUploaderMsgBox()
+		{
+			var html = '<div name = 1>'
+			html+='视频的名称：<span name="videoname"></span>;'+
+			'计算sha进度：<span name="videosha"></span>;'+
+			'上传进度：<span name="videocurr"></span>;'+
+			'上传结果：<span name="videoresult"></span>;'+
+			'地址：<span name="videourl"></span>;';
+			
+			html+="</div>"
+			
+			$("#resultBox").append(html);
+			
+		}
+	</script>
+	
+</body>
+</html>

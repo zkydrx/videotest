@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+<meta charset="UTF-8">
+<title>Gary_Video</title>
+</head>
+<body>
+
+	<h1>Gary上传视频</h1>
+
+	<from id="from1">
+		<input id="uploadVideoNow-file" type="file" onchange="changeInput(this)" style="display:none;">
+		
+	</from>
+
+	<!-- a标签，当点击之后，执行change函数中的内容 -->
+	<a id="uploadVideoNow" href="javascript:void(0);" onclick="change()">点击上传视频</a>
+
+	<br>
+	<hr>
+	<!-- 结果 -->
+	<div id="resultBox">Gary</div>
+
+	<!-- 在web中引入sdk，js -->
+	<script src="//imgcache.qq.com/open/qcloud/js/vod/sdk/ugcUploader.js"></script>
+	<script src="https://cdn.bootcdn.net/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+	<script type="text/javascript" th:inline="javascript">
+	
+		
+		var getSignature = function(callback)
+		{
+			$.ajax({
+				url:"/sign",
+				type:"POST",
+				success:function(result)
+				{
+					alert(result);
+					//即可上传视频
+					callback(result);
+				}
+				
+			})
+		}
+	
+		function change()
+		{
+			$("#uploadVideoNow-file").click();
+		}
+		
+		function changeInput(e){
+ 			//alert(e.files[0].name);
+			var videoFile = e.files[0];
+			//添加视频进度的显示
+			addUploaderMsgBox();
+			qcVideo.ugcUploader.start({
+				//视频文件
+				videoFile:videoFile,
+				//上传位置
+				getSignature:getSignature,
+				//是否上传声音
+				allowAudio:1,
+				//上传成功
+				success:function(result)
+				{
+// 					alert("success");
+					$('[name=videoresult]').text('上传成功');
+				},
+				//上传失败
+				error:function(result)
+				{
+// 					alert("error");
+					$('[name=videoresult]').text('上传失败');
+				},
+				//正在上传过程中会一直调用的Update
+				progress:function(result)
+				{
+					$('[name=videoname]').text(result.name);
+					$('[name=videosha]').text(Math.floor(result.shacurr*100)+"%");
+					$('[name=videocurr]').text(Math.floor(result.curr*100)+"%");
+				},
+				//上传完成
+				finish:function(result)
+				{
+// 					alert("finish");
+					$('[name=videourl]').text(result.videoUrl);
+				}
+			})
+		}
+		
+		//在id里边加东西
+		function addUploaderMsgBox()
+		{
+			var html = '<div name = 1>'
+			html+='视频的名称：<span name="videoname"></span>;'+
+			'计算sha进度：<span name="videosha"></span>;'+
+			'上传进度：<span name="videocurr"></span>;'+
+			'上传结果：<span name="videoresult"></span>;'+
+			'地址：<span name="videourl"></span>;';
+			
+			html+="</div>"
+			
+			$("#resultBox").append(html);
+			
+		}
+		
+	</script>
+
+</body>
+</html>

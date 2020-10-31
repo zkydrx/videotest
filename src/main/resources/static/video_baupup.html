@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <title>Gary_Video</title>
+</head>
+<body>
+
+<h1>Gary上传视频</h1>
+
+<from id="from1">
+    <input id="uploadVideoNow-file" type="file" onchange="changeInput(this)" >
+
+</from>
+
+<!-- a标签，当点击之后，执行change函数中的内容 -->
+<a id="uploadVideoNow" href="javascript:void(0);" onclick="change()">点击上传视频</a>
+
+<!-- 在web中引入sdk，js -->
+<script src="//imgcache.qq.com/open/qcloud/js/vod/sdk/ugcUploader.js"></script>
+<script src="https://cdn.bootcdn.net/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script type="text/javascript" th:inline="javascript">
+
+
+    var getSignature = function(callback)
+    {
+        $.ajax({
+            url:"/sign",
+            type:"POST",
+            success:function(result)
+            {
+                alert(result);
+                //即可上传视频
+                callback(result);
+            }
+
+        })
+    }
+
+    function change()
+    {
+        $("#uploadVideoNow-file").click();
+    }
+
+    function changeInput(e){
+        //alert(e.files[0].name);
+        var videoFile = e.files[0];
+        qcVideo.ugcUploader.start({
+            //视频文件
+            videoFile:videoFile,
+            //上传位置
+            getSignature:getSignature,
+            //是否上传声音
+            allowAudio:1,
+            //上传成功
+            success:function(result)
+            {
+                alert("success");
+            },
+            //上传失败
+            error:function(result)
+            {
+                alert("error");
+            },
+            //上传过程中
+            progress:function(result)
+            {
+
+            },
+            //上传完成
+            finish:function(result)
+            {
+                alert("finish");
+            }
+        })
+    }
+
+</script>
+
+</body>
+</html>
+
